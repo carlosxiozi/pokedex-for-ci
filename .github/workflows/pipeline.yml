@@ -1,37 +1,50 @@
+# Nombre del flujo de trabajo
 name: Deployment Pipeline
 
+# Eventos que activan el flujo de trabajo
 on:
+  # Se ejecuta cuando hay un push en la rama "main"
   push:
     branches: [main]
+  # Se ejecuta al abrir o sincronizar un pull request en la rama "main"
   pull_request:
     branches: [main]
     types: [opened, synchronize]
 
+# Definición de trabajos (jobs) que se ejecutarán en este flujo
 jobs:
 
+  # Trabajo para evitar builds redundantes
   avoid_reduncy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-18.04 # Sistema operativo usado para el job
     steps:
+      # Cancela builds anteriores que ya no son necesarias
       - name: Cancel Previous Redundant Builds
         uses: styfle/cancel-workflow-action@0.9.1
         with:
-          access_token: ${{ github.token }}
+          access_token: ${{ github.token }} # Token de acceso para identificar el flujo actual
 
+  # Job para verificar el código con linting
   lint:
     runs-on: ubuntu-18.04
     steps:
+      # Paso para clonar el repositorio
       - uses: actions/checkout@v2
         with:
-          fetch-depth: 0
+          fetch-depth: 0 # Clona todo el historial de la rama
+      # Configura Node.js con una versión específica
       - uses: actions/setup-node@v2
         with:
-          cache: 'npm'
-          node-version: '14'
+          cache: 'npm' # Habilita la caché para npm
+          node-version: '14' # Usa la versión 14 de Node.js
+      # Instala las dependencias
       - name: Install dependencies
         run: npm ci
+      # Ejecuta el comando de linting
       - name: Lint
         run: npm run eslint
 
+  # Job para construir la aplicación
   build:
     runs-on: ubuntu-18.04
     steps:
@@ -45,14 +58,15 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Build
-        run: npm run build
+        run: npm run build # Construye la aplicación
       - uses: actions/upload-artifact@v2
         with:
-          name: dist
+          name: dist # Sube la carpeta "dist" como artefacto para compartir entre jobs
           path: dist
 
+  # Job para ejecutar pruebas unitarias
   test:
-    needs: [lint, build]
+    needs: [lint, build] # Depende de que los jobs "lint" y "build" se completen
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
@@ -66,13 +80,14 @@ jobs:
         run: npm ci
       - uses: actions/download-artifact@v2
         with:
-          name: dist
+          name: dist # Descarga el artefacto generado en el job "build"
           path: dist
       - name: Test
-        run: npm test
+        run: npm test # Ejecuta las pruebas unitarias
 
+  # Job para pruebas de extremo a extremo (E2E)
   e2e:
-    needs: [lint, build]
+    needs: [lint, build] # Depende de "lint" y "build"
     runs-on: ubuntu-18.04
     steps:
       - uses: actions/checkout@v2
@@ -89,25 +104,11 @@ jobs:
           name: dist
           path: dist
       - name: E2E tests
-        uses: cypress-io/github-action@v2
+        uses: cypress-io/github-action@v2 # Usa Cypress para pruebas E2E
         with:
-          command: npm run test:e2e
-          start: npm run start-test
-          wait-on: http://localhost:5000
+          command: npm run test:e2e # Comando para ejecutar las pruebas
+          start: npm run start-test # Inicia el servidor antes de las pruebas
+          wait-on: http://localhost:5000 # Espera a que el servidor esté disponible
 
-  deploy:
-    needs: [test, e2e]
-    runs-on: ubuntu-18.04
-    steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - name: Deploy to Heroku
-        if: ${{ github.event_name == 'push' }}
-        uses: akhileshns/heroku-deploy@v3.12.12
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: ${{secrets.HEROKU_APP}}
-          heroku_email: ${{secrets.HEROKU_API_EMAIL}}
-          healthcheck: "https://${{secrets.HEROKU_APP}}.herokuapp.com/health"
-          rollbackonhealthcheckfailed: true
+
+

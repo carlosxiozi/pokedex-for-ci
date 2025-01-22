@@ -25,8 +25,7 @@ module.exports = {
     }
   },
   "rules": {
-    "no-console": ["warn", { "allow": ["warn", "error"] }]  // Permite console.log solo para advertencias y errores
-  },
+    "no-console": ["warn", { "allow": ["warn", "error"] }],  // Permite console.log solo para advertencias y errores
     "linebreak-style": [
       "error",
       "unix"
@@ -47,7 +46,6 @@ module.exports = {
     "arrow-spacing": [
       "error", { "before": true, "after": true }
     ],
-    "no-console": "warn",
     "react/prop-types": 0
   }
-
+};

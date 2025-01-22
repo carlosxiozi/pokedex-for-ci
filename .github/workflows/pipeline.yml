@@ -102,7 +102,7 @@ jobs:
           node-version: '16'  # Utilizamos la versión LTS más reciente
       - name: Install dependencies
         run: npm ci
-      - uses: actions/download-artifact@v2 # La versión v2 sigue siendo válida para esta acción
+      - uses: actions/download-artifact@v3 # La versión v2 sigue siendo válida para esta acción
         with:
           name: dist
           path: dist

@@ -50,4 +50,4 @@ module.exports = {
     "no-console": "warn",
     "react/prop-types": 0
   }
-}
+

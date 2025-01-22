@@ -37,26 +37,35 @@ jobs:
         run: npm run eslint  # Ejecuta el comando de linting
         env:
           CI: true  # Asegura que se ejecute en modo CI para evitar interacciones del usuario
-
   # Job para construir la aplicación
   build:
-    runs-on: ubuntu-latest # Utilizamos la última versión de Ubuntu
+    runs-on: ubuntu-latest  # Utilizamos la última versión de Ubuntu
     steps:
-      - uses: actions/checkout@v3 # Actualización a la versión más reciente
+      - uses: actions/checkout@v3  # Actualización a la versión más reciente
         with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v3 # Actualización a la versión más reciente de setup-node
+          fetch-depth: 0  # Clona todo el historial de la rama
+
+      # Configura Node.js con la versión LTS más reciente (16)
+      - uses: actions/setup-node@v3  # Actualización a la versión más reciente de setup-node
         with:
-          cache: 'npm'
-          node-version: '16'  # Utilizamos la versión LTS más reciente
+          cache: 'npm'  # Habilita la caché para npm
+          node-version: '16'  # Utilizamos la versión LTS más reciente (16)
+
+      # Instala las dependencias de producción sin archivos de lock
       - name: Install dependencies
         run: npm ci
+
+      # Asegúrate de que la opción NODE_OPTIONS no esté configurada innecesariamente
+      # Si la opción sigue siendo necesaria, prueba con la versión 16 de Node.js
       - name: Build
-        run: npm run build  # Construye la aplicación
-      - uses: actions/upload-artifact@v3 # Actualización a la versión más reciente de upload-artifact
+        run: npm run build  # Ejecuta el comando de build, que debería estar en tu package.json
+
+      # Sube la carpeta "dist" como artefacto
+      - uses: actions/upload-artifact@v3  # Actualización a la versión más reciente de upload-artifact
         with:
-          name: dist  # Sube la carpeta "dist" como artefacto para compartir entre jobs
-          path: dist
+          name: dist  # Nombre del artefacto a subir
+          path: dist   # Ruta de la carpeta dist para compartir entre jobs
+
 
   # Job para ejecutar pruebas unitarias
   test:

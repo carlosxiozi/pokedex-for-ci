@@ -120,7 +120,7 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-cypress-
       - name: Install Cypress binary
-        run: npx cypress install  # Esto asegura que Cypress se instala correctamente si falta el binario
+        run: npx cypress install  # Asegúrate de que Cypress se instala correctamente
       - name: E2E tests
         uses: cypress-io/github-action@v3
         with:

@@ -59,7 +59,7 @@ jobs:
         run: npm ci
       - name: Build
         run: npm run build # Construye la aplicación
-      - uses: actions/upload-artifact@v2
+      - uses: actions/upload-artifact@v3 # Actualizado a la versión v3
         with:
           name: dist # Sube la carpeta "dist" como artefacto para compartir entre jobs
           path: dist

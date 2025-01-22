@@ -90,25 +90,40 @@ jobs:
 
   # Job para pruebas de extremo a extremo (E2E)
   e2e:
-    needs: [lint, build]  # Depende de "lint" y "build"
-    runs-on: ubuntu-latest # Utilizamos la última versión de Ubuntu
+    needs: [lint, build]
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3 # Actualización a la versión más reciente
+      - uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v3 # Actualización a la versión más reciente de setup-node
+      - uses: actions/setup-node@v3
         with:
-          cache: 'npm'
-          node-version: '16'  # Utilizamos la versión LTS más reciente
+          node-version: '16'
+      - name: Cache npm modules
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-npm-
       - name: Install dependencies
         run: npm ci
-      - uses: actions/download-artifact@v3 # La versión v2 sigue siendo válida para esta acción
+      - uses: actions/download-artifact@v3
         with:
           name: dist
           path: dist
-      - name: E2E tests
-        uses: cypress-io/github-action@v3 # Actualización a la versión más reciente de Cypress
+      - name: Cache Cypress binary
+        uses: actions/cache@v3
         with:
-          command: npm run test:e2e  # Comando para ejecutar las pruebas
-          start: npm run start-test  # Inicia el servidor antes de las pruebas
-          wait-on: http://localhost:5000  # Espera a que el servidor esté disponible
+          path: ~/.cache/Cypress
+          key: ${{ runner.os }}-cypress-${{ hashFiles('**/package.json') }}
+          restore-keys: |
+            ${{ runner.os }}-cypress-
+      - name: Install Cypress binary
+        run: npx cypress install  # Esto asegura que Cypress se instala correctamente si falta el binario
+      - name: E2E tests
+        uses: cypress-io/github-action@v3
+        with:
+          command: npm run test:e2e
+          start: npm run start-test
+          wait-on: http://localhost:5000

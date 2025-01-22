@@ -16,7 +16,7 @@ jobs:
 
   # Trabajo para evitar builds redundantes
   avoid_reduncy:
-    runs-on: ubuntu-latest # Actualizado a la versión más reciente de Ubuntu
+    runs-on: ubuntu-latest # Utilizamos la última versión de Ubuntu
     steps:
       # Cancela builds anteriores que ya no son necesarias
       - name: Cancel Previous Redundant Builds
@@ -29,14 +29,14 @@ jobs:
     runs-on: ubuntu-latest # Actualizado a la versión más reciente de Ubuntu
     steps:
       # Paso para clonar el repositorio
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3 # Actualización a la versión más reciente
         with:
           fetch-depth: 0 # Clona todo el historial de la rama
       # Configura Node.js con una versión específica
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3 # Actualización a la versión más reciente
         with:
           cache: 'npm' # Habilita la caché para npm
-          node-version: '14' # Usa la versión 14 de Node.js
+          node-version: '16' # Actualización a la versión más reciente de Node.js (versión LTS actual)
       # Instala las dependencias
       - name: Install dependencies
         run: npm ci
@@ -46,20 +46,20 @@ jobs:
 
   # Job para construir la aplicación
   build:
-    runs-on: ubuntu-latest # Actualizado a la versión más reciente de Ubuntu
+    runs-on: ubuntu-latest # Utilizamos la última versión de Ubuntu
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3 # Actualización a la versión más reciente
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3 # Actualización a la versión más reciente
         with:
           cache: 'npm'
-          node-version: '14'
+          node-version: '16' # Utilizamos la versión LTS más reciente
       - name: Install dependencies
         run: npm ci
       - name: Build
         run: npm run build # Construye la aplicación
-      - uses: actions/upload-artifact@v3 # Actualizado a la versión v3
+      - uses: actions/upload-artifact@v3 # Actualización a la versión más reciente
         with:
           name: dist # Sube la carpeta "dist" como artefacto para compartir entre jobs
           path: dist
@@ -67,18 +67,18 @@ jobs:
   # Job para ejecutar pruebas unitarias
   test:
     needs: [lint, build] # Depende de que los jobs "lint" y "build" se completen
-    runs-on: ubuntu-latest # Actualizado a la versión más reciente de Ubuntu
+    runs-on: ubuntu-latest # Utilizamos la última versión de Ubuntu
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3 # Actualización a la versión más reciente
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3 # Actualización a la versión más reciente
         with:
           cache: 'npm'
-          node-version: '14'
+          node-version: '16' # Utilizamos la versión LTS más reciente
       - name: Install dependencies
         run: npm ci
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v2 # La versión v2 sigue siendo válida para esta acción
         with:
           name: dist # Descarga el artefacto generado en el job "build"
           path: dist
@@ -88,23 +88,23 @@ jobs:
   # Job para pruebas de extremo a extremo (E2E)
   e2e:
     needs: [lint, build] # Depende de "lint" y "build"
-    runs-on: ubuntu-latest # Actualizado a la versión más reciente de Ubuntu
+    runs-on: ubuntu-latest # Utilizamos la última versión de Ubuntu
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3 # Actualización a la versión más reciente
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v3 # Actualización a la versión más reciente
         with:
           cache: 'npm'
-          node-version: '14'
+          node-version: '16' # Utilizamos la versión LTS más reciente
       - name: Install dependencies
         run: npm ci
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v2 # La versión v2 sigue siendo válida para esta acción
         with:
           name: dist
           path: dist
       - name: E2E tests
-        uses: cypress-io/github-action@v2 # Usa Cypress para pruebas E2E
+        uses: cypress-io/github-action@v3 # Actualización a la versión más reciente
         with:
           command: npm run test:e2e # Comando para ejecutar las pruebas
           start: npm run start-test # Inicia el servidor antes de las pruebas

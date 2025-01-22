@@ -19,11 +19,14 @@ module.exports = {
   "plugins": [
     "react", "jest"
   ],
+  "settings": {
+    "react": {
+      "version": "detect"  // Detecta automáticamente la versión de React
+    }
+  },
   "rules": {
-    "indent": [
-      "error",
-        2
-      ],
+    "no-console": ["warn", { "allow": ["warn", "error"] }]  // Permite console.log solo para advertencias y errores
+  },
     "linebreak-style": [
       "error",
       "unix"

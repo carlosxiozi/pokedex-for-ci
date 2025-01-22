@@ -3,13 +3,10 @@ name: Deployment Pipeline
 
 # Eventos que activan el flujo de trabajo
 on:
-  # Se ejecuta cuando hay un push en la rama "main"
   push:
-    branches: [main]
-  # Se ejecuta al abrir o sincronizar un pull request en la rama "main"
+    branches: [main]  # Se ejecuta cuando hay un push en la rama "main"
   pull_request:
-    branches: [main]
-    types: [opened, synchronize]
+    branches: [main]  # Se ejecuta cuando se abre o sincroniza un PR en la rama "main"
 
 # Definición de trabajos (jobs) que se ejecutarán en este flujo
 jobs:
@@ -18,7 +15,6 @@ jobs:
   avoid_reduncy:
     runs-on: ubuntu-latest # Utilizamos la última versión de Ubuntu
     steps:
-      # Cancela builds anteriores que ya no son necesarias
       - name: Cancel Previous Redundant Builds
         uses: styfle/cancel-workflow-action@0.9.1
         with:
@@ -26,23 +22,21 @@ jobs:
 
   # Job para verificar el código con linting
   lint:
-    runs-on: ubuntu-latest # Actualizado a la versión más reciente de Ubuntu
+    runs-on: ubuntu-latest # Utilizamos la última versión de Ubuntu
     steps:
-      # Paso para clonar el repositorio
       - uses: actions/checkout@v3 # Actualización a la versión más reciente
         with:
-          fetch-depth: 0 # Clona todo el historial de la rama
-      # Configura Node.js con una versión específica
-      - uses: actions/setup-node@v3 # Actualización a la versión más reciente
+          fetch-depth: 0  # Clona todo el historial de la rama
+      - uses: actions/setup-node@v3 # Actualización a la versión más reciente de setup-node
         with:
-          cache: 'npm' # Habilita la caché para npm
-          node-version: '16' # Actualización a la versión más reciente de Node.js (versión LTS actual)
-      # Instala las dependencias
+          cache: 'npm'  # Habilita la caché para npm
+          node-version: '16'  # Utilizamos la versión LTS más reciente de Node.js
       - name: Install dependencies
         run: npm ci
-      # Ejecuta el comando de linting
       - name: Lint
-        run: npm run eslint
+        run: npm run eslint  # Ejecuta el comando de linting
+        env:
+          CI: true  # Asegura que se ejecute en modo CI para evitar interacciones del usuario
 
   # Job para construir la aplicación
   build:
@@ -51,52 +45,52 @@ jobs:
       - uses: actions/checkout@v3 # Actualización a la versión más reciente
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v3 # Actualización a la versión más reciente
+      - uses: actions/setup-node@v3 # Actualización a la versión más reciente de setup-node
         with:
           cache: 'npm'
-          node-version: '16' # Utilizamos la versión LTS más reciente
+          node-version: '16'  # Utilizamos la versión LTS más reciente
       - name: Install dependencies
         run: npm ci
       - name: Build
-        run: npm run build # Construye la aplicación
-      - uses: actions/upload-artifact@v3 # Actualización a la versión más reciente
+        run: npm run build  # Construye la aplicación
+      - uses: actions/upload-artifact@v3 # Actualización a la versión más reciente de upload-artifact
         with:
-          name: dist # Sube la carpeta "dist" como artefacto para compartir entre jobs
+          name: dist  # Sube la carpeta "dist" como artefacto para compartir entre jobs
           path: dist
 
   # Job para ejecutar pruebas unitarias
   test:
-    needs: [lint, build] # Depende de que los jobs "lint" y "build" se completen
+    needs: [lint, build]  # Depende de que los jobs "lint" y "build" se completen
     runs-on: ubuntu-latest # Utilizamos la última versión de Ubuntu
     steps:
       - uses: actions/checkout@v3 # Actualización a la versión más reciente
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v3 # Actualización a la versión más reciente
+      - uses: actions/setup-node@v3 # Actualización a la versión más reciente de setup-node
         with:
           cache: 'npm'
-          node-version: '16' # Utilizamos la versión LTS más reciente
+          node-version: '16'  # Utilizamos la versión LTS más reciente
       - name: Install dependencies
         run: npm ci
       - uses: actions/download-artifact@v2 # La versión v2 sigue siendo válida para esta acción
         with:
-          name: dist # Descarga el artefacto generado en el job "build"
+          name: dist  # Descarga el artefacto generado en el job "build"
           path: dist
       - name: Test
-        run: npm test # Ejecuta las pruebas unitarias
+        run: npm test  # Ejecuta las pruebas unitarias
 
   # Job para pruebas de extremo a extremo (E2E)
   e2e:
-    needs: [lint, build] # Depende de "lint" y "build"
+    needs: [lint, build]  # Depende de "lint" y "build"
     runs-on: ubuntu-latest # Utilizamos la última versión de Ubuntu
     steps:
       - uses: actions/checkout@v3 # Actualización a la versión más reciente
         with:
           fetch-depth: 0
-      - uses: actions/setup-node@v3 # Actualización a la versión más reciente
+      - uses: actions/setup-node@v3 # Actualización a la versión más reciente de setup-node
         with:
           cache: 'npm'
-          node-version: '16' # Utilizamos la versión LTS más reciente
+          node-version: '16'  # Utilizamos la versión LTS más reciente
       - name: Install dependencies
         run: npm ci
       - uses: actions/download-artifact@v2 # La versión v2 sigue siendo válida para esta acción
@@ -104,8 +98,8 @@ jobs:
           name: dist
           path: dist
       - name: E2E tests
-        uses: cypress-io/github-action@v3 # Actualización a la versión más reciente
+        uses: cypress-io/github-action@v3 # Actualización a la versión más reciente de Cypress
         with:
-          command: npm run test:e2e # Comando para ejecutar las pruebas
-          start: npm run start-test # Inicia el servidor antes de las pruebas
-          wait-on: http://localhost:5000 # Espera a que el servidor esté disponible
+          command: npm run test:e2e  # Comando para ejecutar las pruebas
+          start: npm run start-test  # Inicia el servidor antes de las pruebas
+          wait-on: http://localhost:5000  # Espera a que el servidor esté disponible

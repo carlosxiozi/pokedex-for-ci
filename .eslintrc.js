@@ -25,7 +25,7 @@ module.exports = {
     }
   },
   "rules": {
-    "no-console": ["warn", { "allow": ["warn", "error"] }],  // Permite console.log solo para advertencias y errores
+    "no-console": ["warn", { "allow": ["warn", "error", "log"] }],  // Permite console.log
     "linebreak-style": [
       "error",
       "unix"
@@ -46,6 +46,7 @@ module.exports = {
     "arrow-spacing": [
       "error", { "before": true, "after": true }
     ],
-    "react/prop-types": 0
+    "react/prop-types": 0,
+    "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }]  // Ignora los variables que empiezan con _ (útil para parámetros no utilizados)
   }
 };
